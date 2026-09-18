@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>IA en famille — Visez le top 1%</title>
+  <meta name="description" content="Mini-parcours familial pour comprendre et mieux utiliser l'IA en 2026.">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand"><span class="brandmark"></span><span>IA en famille</span></div>
+    <div class="progress-wrap"><div class="progress"><div id="bar"></div></div><span id="progressText">1 / 13</span></div>
+    <div class="badge">TOP 1%</div>
+  </header>
+
+  <main>
+    <section class="lesson active" data-title="Bienvenue">
+      <div class="hero">
+        <div>
+          <div class="kicker">Formation famille · 2026</div>
+          <h1>Visez le <span>top 1%</span> des gens qui savent vraiment utiliser l’IA.</h1>
+          <p class="lead">Pas en apprenant 50 prompts. En comprenant ce que l’IA sait faire aujourd’hui, comment lui donner du contexte, la connecter aux bons outils et automatiser ce qui mérite de l’être.</p>
+          <div class="chips"><span>Comprendre</span><span>Demander</span><span>Connecter</span><span>Automatiser</span></div>
+        </div>
+        <aside class="hero-card"><div class="rank">1<small>%</small></div><p>Le but ce soir : changer votre réflexe face à un problème du quotidien.</p></aside>
+      </div>
+    </section>
+
+    <section class="lesson" data-title="Où en est l’IA ?">
+      <div class="kicker">Avant de commencer</div>
+      <h2>L’IA va beaucoup plus vite que l’image qu’on en a.</h2>
+      <p class="lead">Le vieux modèle mental, c’est : <b>“je tape un prompt → l’IA répond”</b>. En 2026, on peut déjà aller bien plus loin.</p>
+      <div class="timeline">
+        <article><b>1</b><h3>Répondre</h3><p>Une question, une réponse.</p></article>
+        <article><b>2</b><h3>Converser</h3><p>On affine et on construit ensemble.</p></article>
+        <article><b>3</b><h3>Connaître</h3><p>Contexte, projets, fichiers, préférences.</p></article>
+        <article><b>4</b><h3>Agir</h3><p>L’IA utilise des outils connectés.</p></article>
+        <article class="now"><b>5</b><h3>Anticiper</h3><p>Des tâches reviennent automatiquement.</p></article>
+      </div>
+      <div class="callout"><strong>Le changement clé :</strong> on passe progressivement d’un chatbot à un assistant qui peut comprendre un contexte, utiliser des outils et exécuter des routines.</div>
+    </section>
+
+    <section class="lesson" data-title="Les 5 niveaux">
+      <div class="kicker">Votre niveau aujourd’hui</div>
+      <h2>Les 5 niveaux de maturité IA</h2>
+      <p class="sub">Cliquez sur le niveau qui vous ressemble le plus.</p>
+      <div class="maturity">
+        <button class="m-card" data-level="1"><span class="m-num">Niveau 1</span><span class="emoji">💬</span><h3>Je discute</h3><p>Questions simples. Réponses simples.</p><em>“Donne-moi une recette.”</em></button>
+        <button class="m-card" data-level="2"><span class="m-num">Niveau 2</span><span class="emoji">🎯</span><h3>Je sais demander</h3><p>Objectif, contraintes, format.</p><em>“Pour 4, sain, 30 min max.”</em></button>
+        <button class="m-card" data-level="3"><span class="m-num">Niveau 3</span><span class="emoji">🧠</span><h3>Je donne du contexte</h3><p>Projets, fichiers, préférences.</p><em>L’IA repart de ce qu’elle sait déjà.</em></button>
+        <button class="m-card" data-level="4"><span class="m-num">Niveau 4</span><span class="emoji">🔗</span><h3>Je connecte</h3><p>Mail, agenda, fichiers, apps.</p><em>Moins de copier-coller.</em></button>
+        <button class="m-card" data-level="5"><span class="m-num">Niveau 5</span><span class="emoji">⚙️</span><h3>J’automatise</h3><p>Des routines reviennent seules.</p><em>L’IA travaille aussi plus tard.</em></button>
+      </div>
+      <div class="result" id="maturityResult">Choisissez un niveau.</div>
+    </section>
+
+    <section class="lesson" data-title="Visite de ChatGPT">
+      <div class="kicker">Visite guidée</div>
+      <h2>Avant les prompts : regardez tout ce qu’il y a autour.</h2>
+      <div class="interface">
+        <div class="mock">
+          <div class="mock-top"><strong>ChatGPT</strong><span>Exemple d’interface</span></div>
+          <div class="mock-body">
+            <aside class="sidebar"><div>＋ Nouveau chat</div><div>🔎 Recherche</div><div>📁 Projets</div><div>🧩 Apps</div><div>⏱ Tâches</div></aside>
+            <div class="chat"><div><div class="chat-title">Comment puis-je vous aider ?</div><p class="center">Un chat n’est qu’une partie de l’expérience.</p></div><div class="composer"><span>Posez une question ou donnez une tâche…</span><div class="tools"><b>＋ fichier</b><b>🌐 web</b><b>🎙 voix</b><b>🖼 image</b></div></div></div>
+          </div>
+        </div>
+        <div class="tour">
+          <button class="tour-btn active" data-info="chat">💬 Chat & modèles</button>
+          <button class="tour-btn" data-info="files">📎 Fichiers & photos</button>
+          <button class="tour-btn" data-info="web">🌐 Recherche web</button>
+          <button class="tour-btn" data-info="projects">📁 Projets & contexte</button>
+          <button class="tour-btn" data-info="voice">🎙 Voix & images</button>
+          <button class="tour-btn" data-info="plugins">🔗 Apps connectées</button>
+          <button class="tour-btn" data-info="tasks">⏱ Tâches</button>
+          <div class="tour-info" id="tourInfo">Un chat pour une tâche, puis on affine. Selon votre offre, vous pouvez aussi choisir plus ou moins de profondeur de raisonnement.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="lesson" data-title="Bien demander">
+      <div class="kicker">Niveau 1 → 2 → 3</div>
+      <h2>Vous n’avez pas besoin d’un “prompt magique”.</h2>
+      <p class="lead">Ajoutez simplement ce qui manquerait à un humain compétent pour bien vous aider.</p>
+      <div class="promptlab">
+        <article><small>1 · Basique</small><blockquote>“Organise-moi 5 jours à Rome.”</blockquote><b>Peu de contexte</b></article>
+        <div class="arrow">→</div>
+        <article><small>2 · Précis</small><blockquote>“5 jours à Rome, budget moyen, une grosse visite par jour, bonnes adresses pour dîner.”</blockquote><b>Objectif + contraintes</b></article>
+        <div class="arrow">→</div>
+        <article><small>3 · Contextuel</small><blockquote>“Nous sommes 2 adultes + un enfant de 10 ans, on aime marcher mais pas courir, voici notre hôtel et nos dates.”</blockquote><b>Votre vraie situation</b></article>
+      </div>
+      <div class="formula"><b>La formule utile :</b> objectif + contexte + contraintes + résultat attendu.</div>
+    </section>
+
+    <section class="lesson" data-title="Écrire">
+      <div class="kicker">Cas concret #1</div>
+      <h2>Écrire et communiquer sans partir d’une page blanche.</h2>
+      <div class="grid two">
+        <article class="card"><span>✉️</span><h3>Mail administratif</h3><p>Donnez vos informations en vrac et demandez un mail clair, poli et court.</p><em>“Voici les faits. Fais-moi un mail ferme mais cordial.”</em></article>
+        <article class="card"><span>🪄</span><h3>Réécriture</h3><p>Changez la longueur, le ton, la langue ou le niveau de formalité.</p><em>“Plus court, moins agressif, garde mon idée.”</em></article>
+      </div>
+    </section>
+
+    <section class="lesson" data-title="Organiser">
+      <div class="kicker">Cas concret #2</div>
+      <h2>Organiser devient beaucoup plus puissant avec votre contexte.</h2>
+      <div class="grid two">
+        <article class="card"><span>🗺️</span><h3>Version générique</h3><p>“Prépare un week-end à Londres.”</p><em>Résultat correct… mais interchangeable.</em></article>
+        <article class="card"><span>🧳</span><h3>Version utile</h3><p>Dates, personnes, rythme, budget, hôtel, goûts et contraintes.</p><em>Le programme commence à ressembler à votre vraie vie.</em></article>
+      </div>
+      <div class="chips"><span>Voyage</span><span>Menus</span><span>Planning</span><span>Achats</span><span>Comparaisons</span><span>Décisions</span></div>
+    </section>
+
+    <section class="lesson" data-title="Parents & enfants">
+      <div class="kicker">Cas concret #3</div>
+      <h2>Avec les enfants : un prof particulier, pas une machine à faire les devoirs.</h2>
+      <div class="grid">
+        <article class="card"><span>🧩</span><h3>Expliquer</h3><p>“Explique les fractions à un enfant de 10 ans avec des pizzas et 3 questions.”</p></article>
+        <article class="card"><span>🎮</span><h3>Transformer en jeu</h3><p>“Fais un quiz. Une question à la fois. Augmente progressivement la difficulté.”</p></article>
+        <article class="card"><span>🔎</span><h3>Faire réfléchir</h3><p>“Ne donne pas la réponse. Donne des indices jusqu’à ce qu’il trouve.”</p></article>
+      </div>
+      <div class="callout"><strong>La règle :</strong> augmenter la compréhension et la curiosité, pas supprimer l’effort d’apprendre.</div>
+    </section>
+
+    <section class="lesson" data-title="Voir & lire">
+      <div class="kicker">Cas concret #4</div>
+      <h2>Vous n’êtes pas obligé de tout taper.</h2>
+      <div class="grid two">
+        <article class="card"><span>📸</span><h3>Montrez</h3><p>Photo d’un appareil, d’un courrier, d’un produit, d’un écran ou d’un exercice.</p><em>“Qu’est-ce que je regarde ? Que dois-je faire maintenant ?”</em></article>
+        <article class="card"><span>📄</span><h3>Donnez le document</h3><p>PDF, texte, tableau, capture : demandez un résumé, une extraction, une comparaison ou une explication.</p><em>“Donne-moi seulement ce qui change quelque chose pour moi.”</em></article>
+      </div>
+    </section>
+
+    <section class="lesson" data-title="Connecter">
+      <div class="kicker">Niveau 4</div>
+      <h2>Le grand saut : arrêter de recopier votre vie dans le chat.</h2>
+      <p class="lead">Quand un outil est connecté et autorisé, l’IA peut travailler à partir de vos vraies informations.</p>
+      <div class="grid two">
+        <article class="card"><span>📅</span><h3>Agenda</h3><p>“Trouve un créneau cette semaine pour dîner avec ma sœur.”</p></article>
+        <article class="card"><span>📬</span><h3>Mail</h3><p>“Retrouve l’email de réservation de mon hôtel et résume les infos importantes.”</p></article>
+        <article class="card"><span>☁️</span><h3>Drive</h3><p>“Retrouve notre budget vacances et dis-moi ce qu’il reste.”</p></article>
+        <article class="card"><span>🔗</span><h3>Apps</h3><p>L’IA utilise le service adapté plutôt que de vous demander de recopier l’information.</p></article>
+      </div>
+      <p class="tiny">Les options disponibles dépendent du compte, du plan et des autorisations accordées.</p>
+    </section>
+
+    <section class="lesson" data-title="Automatiser">
+      <div class="kicker">Niveau 5</div>
+      <h2>Le niveau supérieur : ne plus avoir à penser à demander.</h2>
+      <p class="lead">Une bonne automatisation est répétitive, claire et vérifiable.</p>
+      <div class="grid">
+        <article class="card"><span>🌤️</span><h3>Surveiller</h3><p>“Chaque vendredi, regarde la météo et préviens-moi si le week-end se prête à une sortie.”</p></article>
+        <article class="card"><span>🗓️</span><h3>Préparer</h3><p>“Chaque dimanche soir, prépare le planning familial de la semaine.”</p></article>
+        <article class="card"><span>✈️</span><h3>Alerter</h3><p>“Surveille ce vol et préviens-moi si le prix baisse.”</p></article>
+      </div>
+      <div class="formula"><b>Bonne automatisation :</b> fréquence + source + condition + résultat attendu.</div>
+    </section>
+
+    <section class="lesson" data-title="Les limites">
+      <div class="kicker">À ne pas oublier</div>
+      <h2>Super-pouvoirs ≠ magie.</h2>
+      <div class="grid">
+        <article class="card"><span>⚠️</span><h3>L’IA peut se tromper</h3><p>Un texte convaincant n’est pas une preuve. Pour les faits importants : sources et vérification.</p></article>
+        <article class="card"><span>🔐</span><h3>Pensez aux données</h3><p>Ne partagez pas machinalement mots de passe, secrets ou informations sensibles.</p></article>
+        <article class="card"><span>🧭</span><h3>Gardez le jugement</h3><p>Santé, droit, argent, sécurité : comprendre et préparer, pas déléguer aveuglément.</p></article>
+      </div>
+    </section>
+
+    <section class="lesson" data-title="Challenge 7 jours">
+      <div class="challenge">
+        <aside class="streak"><div>🔥</div><strong>7</strong><span>jours pour changer de réflexe</span></aside>
+        <div>
+          <div class="kicker">Votre mission</div>
+          <h2>Avant de faire seul, demandez : “Est-ce que l’IA peut m’aider ici ?”</h2>
+          <div class="checklist"><div>Une chose à écrire</div><div>Une chose à comprendre</div><div>Une chose à organiser</div><div>Une chose à comparer ou décider</div><div>Une tâche répétitive à connecter ou automatiser</div></div>
+          <p class="lead final"><b>Le top 1 % ne pose pas seulement de meilleures questions.</b><br>Il sait quand donner du contexte, connecter les bons outils et automatiser.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <nav class="nav"><button id="prev">← Retour</button><div id="dots" class="dots"></div><button id="next" class="primary">Continuer →</button></nav>
+</div>
+<script src="./script.js"></script>
+</body>
+</html>
