@@ -1300,13 +1300,13 @@ const suggestedFoods = ['Pâtes','Poulet','Steak','Pizza','Riz','Pommes de terre
 const defaultMembers = ()=>[
   {id:'p1',name:'Benoît',type:'parent',age:'',skill:1,likes:[],dislikes:[],allergies:[],allergiesConfirmed:false},
   {id:'p2',name:'Jessica',type:'parent',age:'',skill:2,likes:[],dislikes:[],allergies:[],allergiesConfirmed:false},
-  {id:'p3',name:'Willian',type:'enfant',age:'5',skill:0,likes:[],dislikes:[],allergies:[],allergiesConfirmed:false},
-  {id:'p4',name:'Eden',type:'enfant',age:'10',skill:0,likes:[],dislikes:[],allergies:[],allergiesConfirmed:false},
-  {id:'p5',name:'Chelsea',type:'enfant',age:'13',skill:0,likes:[],dislikes:[],allergies:[],allergiesConfirmed:false},
-  {id:'p6',name:'Enfant 4',type:'enfant',age:'16',skill:0,likes:[],dislikes:[],allergies:[],allergiesConfirmed:false}
+  {id:'p3',name:'Willian',type:'enfant',age:'',skill:0,likes:[],dislikes:[],allergies:[],allergiesConfirmed:false},
+  {id:'p4',name:'Eden',type:'enfant',age:'',skill:0,likes:[],dislikes:[],allergies:[],allergiesConfirmed:false},
+  {id:'p5',name:'Chelsea',type:'enfant',age:'',skill:0,likes:[],dislikes:[],allergies:[],allergiesConfirmed:false},
+  {id:'p6',name:'Grayce',type:'enfant',age:'',skill:0,likes:[],dislikes:[],allergies:[],allergiesConfirmed:false}
 ];
 const defaultState = ()=>({members:defaultMembers(),plan:{},favourites:[],passes:{},ratings:{},history:[],foodPrefs:{},selectedCook:'p2',prefs:{maxTime:30},lastUpdated:new Date().toISOString()});
-const makeState=(raw)=>{const d=defaultState();if(!raw||typeof raw!=='object')return d;for(const key of Object.keys(d)){if(raw[key]!==undefined&&raw[key]!==null)d[key]=raw[key]};if(!Array.isArray(d.members)||d.members.length!==6)d.members=defaultMembers();d.members=d.members.map((m,i)=>({...defaultMembers()[i],...m,name:(i>=2&&i<=4&&(/^Enfant [123]$/.test(String(m.name||''))||(i===2&&m.name==='William')))?defaultMembers()[i].name:(m.name||defaultMembers()[i].name),likes:Array.isArray(m.likes)?m.likes:[],dislikes:Array.isArray(m.dislikes)?m.dislikes:[],allergies:Array.isArray(m.allergies)?m.allergies:[]}));if(!Array.isArray(d.favourites))d.favourites=[];if(!Array.isArray(d.history))d.history=[];return d;};
+const makeState=(raw)=>{const d=defaultState();if(!raw||typeof raw!=='object')return d;for(const key of Object.keys(d)){if(raw[key]!==undefined&&raw[key]!==null)d[key]=raw[key]};if(!Array.isArray(d.members)||d.members.length!==6)d.members=defaultMembers();d.members=d.members.map((m,i)=>({...defaultMembers()[i],...m,name:(i>=2&&i<=5&&(/^Enfant [1-4]$/.test(String(m.name||''))||(i===2&&m.name==='William')))?defaultMembers()[i].name:(m.name||defaultMembers()[i].name),age:(i>=2&&String(m.age||'')===['5','10','13','16'][i-2])?'':(m.age||''),likes:Array.isArray(m.likes)?m.likes:[],dislikes:Array.isArray(m.dislikes)?m.dislikes:[],allergies:Array.isArray(m.allergies)?m.allergies:[]}));if(!Array.isArray(d.favourites))d.favourites=[];if(!Array.isArray(d.history))d.history=[];return d;};
 let recipes=[], state=defaultState(), mode='local', me=null, version=0, selectedDay=0, currentId=null, page='discover', modal=null, searchTerm='', authType='login', authError='', catalogKind='fav', showOnlyUnrated=false, persistQueue=Promise.resolve(), syncBusy=false, tipTimer;
 function recipeById(id){return recipes.find(r=>r.id===id)}
 function textFor(r){return clean(r.name+' '+r.ingredients.join(' ')+' '+r.category)}
