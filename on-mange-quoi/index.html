@@ -1310,22 +1310,24 @@ const defaultMembers = ()=>[
   {id:'p1',name:'Benoît',type:'parent',age:'',skill:1,likes:[],dislikes:[],allergies:[],allergiesConfirmed:false},
   {id:'p2',name:'Jessica',type:'parent',age:'',skill:2,likes:[],dislikes:[],allergies:[],allergiesConfirmed:false},
   {id:'p3',name:'Willian',type:'enfant',age:'10',skill:0,likes:[],dislikes:[],allergies:[],allergiesConfirmed:false},
-  {id:'p4',name:'Eden',type:'enfant',age:'13',skill:0,likes:[],dislikes:[],allergies:[],allergiesConfirmed:false},
+  {id:'p4',name:'Hayden',type:'enfant',age:'13',skill:0,likes:[],dislikes:[],allergies:[],allergiesConfirmed:false},
   {id:'p5',name:'Chelsea',type:'enfant',age:'16',skill:0,likes:[],dislikes:[],allergies:[],allergiesConfirmed:false},
   {id:'p6',name:'Grayce',type:'enfant',age:'5',skill:0,likes:[],dislikes:[],allergies:[],allergiesConfirmed:false}
 ];
-const defaultState = ()=>({members:defaultMembers(),plan:{},favourites:[],passes:{},ratings:{},history:[],foodPrefs:{},prefOrigins:{},firefliesSeedVersion:0,selectedCook:'p2',prefs:{maxTime:30},lastUpdated:new Date().toISOString()});
+const FAMILY_PREFS_20261010={"p1":{"pates":"like","poulet":"depends","riz":"like","steak":"like","pommes-terre":"like","oeufs":"like","tomates":"like","fromage":"dislike","carottes":"dislike","poisson":"dislike","brocolis":"dislike","courgettes":"dislike","champignons":"depends","salade":"like","oignons":"like","petits-pois":"dislike","haricots-verts":"dislike","jambon":"like","poivrons":"like","lentilles":"dislike"},"p2":{"pates":"like","poulet":"like","riz":"like","steak":"like","pommes-terre":"like","oeufs":"like","tomates":"like","fromage":"like","carottes":"like","poisson":"like","brocolis":"like","courgettes":"like","champignons":"like","salade":"like","oignons":"like","petits-pois":"like","haricots-verts":"like","jambon":"like","poivrons":"like","lentilles":"like"},"p3":{"pates":"dislike","poulet":"like","riz":"depends","steak":"depends","pommes-terre":"dislike","oeufs":"like","tomates":"like","fromage":"dislike","carottes":"dislike","poisson":"depends","brocolis":"dislike","courgettes":"dislike","champignons":"dislike","salade":"depends","oignons":"dislike","petits-pois":"dislike","haricots-verts":"dislike","jambon":"depends","poivrons":"dislike","lentilles":"dislike"},"p4":{"pates":"dislike","poulet":"depends","riz":"like","steak":"like","pommes-terre":"like","oeufs":"like","tomates":"like","fromage":"like","carottes":"like","poisson":"depends","brocolis":"like","courgettes":"like","champignons":"dislike","salade":"like","oignons":"dislike","petits-pois":"depends","haricots-verts":"depends","jambon":"like","poivrons":"dislike","lentilles":"dislike"},"p5":{"pates":"like","poulet":"like","riz":"like","steak":"like","pommes-terre":"like","oeufs":"like","tomates":"like","fromage":"like","carottes":"like","poisson":"depends","brocolis":"like","courgettes":"dislike","champignons":"depends","salade":"like","oignons":"like","petits-pois":"like","haricots-verts":"like","jambon":"like","poivrons":"like","lentilles":"like"},"p6":{"pates":"like","poulet":"depends","riz":"depends","steak":"depends","pommes-terre":"like","oeufs":"like","tomates":"depends","fromage":"depends","carottes":"dislike","poisson":"dislike","brocolis":"like","courgettes":"dislike","champignons":"dislike","salade":"depends","oignons":"depends","petits-pois":"dislike","haricots-verts":"depends","jambon":"like","poivrons":"dislike","lentilles":"like"}};
+const defaultState = ()=>({members:defaultMembers(),plan:{},favourites:[],passes:{},ratings:{},history:[],foodPrefs:JSON.parse(JSON.stringify(FAMILY_PREFS_20261010)),prefOrigins:{},firefliesSeedVersion:2,selectedCook:'p2',prefs:{maxTime:30},lastUpdated:new Date().toISOString()});
 const makeState=(raw)=>{
   const d=defaultState();
   if(raw&&typeof raw==='object')for(const k of Object.keys(d))if(raw[k]!==undefined&&raw[k]!==null)d[k]=raw[k];
   if(!Array.isArray(d.members)||d.members.length!==6)d.members=defaultMembers();
   d.members=d.members.map((m,i)=>{
     const base=defaultMembers()[i],legacy=i>=2?['5','10','13','16'][i-2]:'';
-    return {...base,...m,name:(i>=2&&i<=5&&(['Enfant 1','Enfant 2','Enfant 3','Enfant 4','William'].includes(m.name)))?base.name:(m.name||base.name),age:(i>=2&&String(m.age||'')===legacy)?base.age:(m.age||base.age),likes:Array.isArray(m.likes)?m.likes:[],dislikes:Array.isArray(m.dislikes)?m.dislikes:[],allergies:Array.isArray(m.allergies)?m.allergies:[]};
+    return {...base,...m,name:(i>=2&&i<=5&&(['Enfant 1','Enfant 2','Enfant 3','Enfant 4','William','Eden'].includes(m.name)))?base.name:(m.name||base.name),age:(i>=2&&String(m.age||'')===legacy)?base.age:(m.age||base.age),likes:Array.isArray(m.likes)?m.likes:[],dislikes:Array.isArray(m.dislikes)?m.dislikes:[],allergies:Array.isArray(m.allergies)?m.allergies:[]};
   });
   if(!Array.isArray(d.favourites))d.favourites=[];if(!Array.isArray(d.history))d.history=[];
   if(!d.foodPrefs||typeof d.foodPrefs!=='object')d.foodPrefs={};
   if(!d.prefOrigins||typeof d.prefOrigins!=='object')d.prefOrigins={};
+  if(Number(d.firefliesSeedVersion||0)<2){d.foodPrefs=JSON.parse(JSON.stringify(FAMILY_PREFS_20261010));d.prefOrigins={};d.firefliesSeedVersion=2;}
   if(!d.firefliesSeedVersion){
     const votes={
       p1:{pates:'like',tomates:'like',oignons:'like',steak:'like',brocolis:'dislike',courgettes:'dislike',salade:'dislike','haricots-verts':'dislike','petits-pois':'dislike'},
