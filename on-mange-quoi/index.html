@@ -1300,13 +1300,37 @@ const suggestedFoods = ['Pâtes','Poulet','Steak','Pizza','Riz','Pommes de terre
 const defaultMembers = ()=>[
   {id:'p1',name:'Benoît',type:'parent',age:'',skill:1,likes:[],dislikes:[],allergies:[],allergiesConfirmed:false},
   {id:'p2',name:'Jessica',type:'parent',age:'',skill:2,likes:[],dislikes:[],allergies:[],allergiesConfirmed:false},
-  {id:'p3',name:'Willian',type:'enfant',age:'',skill:0,likes:[],dislikes:[],allergies:[],allergiesConfirmed:false},
-  {id:'p4',name:'Eden',type:'enfant',age:'',skill:0,likes:[],dislikes:[],allergies:[],allergiesConfirmed:false},
-  {id:'p5',name:'Chelsea',type:'enfant',age:'',skill:0,likes:[],dislikes:[],allergies:[],allergiesConfirmed:false},
-  {id:'p6',name:'Grayce',type:'enfant',age:'',skill:0,likes:[],dislikes:[],allergies:[],allergiesConfirmed:false}
+  {id:'p3',name:'Willian',type:'enfant',age:'10',skill:0,likes:[],dislikes:[],allergies:[],allergiesConfirmed:false},
+  {id:'p4',name:'Eden',type:'enfant',age:'13',skill:0,likes:[],dislikes:[],allergies:[],allergiesConfirmed:false},
+  {id:'p5',name:'Chelsea',type:'enfant',age:'16',skill:0,likes:[],dislikes:[],allergies:[],allergiesConfirmed:false},
+  {id:'p6',name:'Grayce',type:'enfant',age:'5',skill:0,likes:[],dislikes:[],allergies:[],allergiesConfirmed:false}
 ];
-const defaultState = ()=>({members:defaultMembers(),plan:{},favourites:[],passes:{},ratings:{},history:[],foodPrefs:{},selectedCook:'p2',prefs:{maxTime:30},lastUpdated:new Date().toISOString()});
-const makeState=(raw)=>{const d=defaultState();if(!raw||typeof raw!=='object')return d;for(const key of Object.keys(d)){if(raw[key]!==undefined&&raw[key]!==null)d[key]=raw[key]};if(!Array.isArray(d.members)||d.members.length!==6)d.members=defaultMembers();d.members=d.members.map((m,i)=>({...defaultMembers()[i],...m,name:(i>=2&&i<=5&&(/^Enfant [1-4]$/.test(String(m.name||''))||(i===2&&m.name==='William')))?defaultMembers()[i].name:(m.name||defaultMembers()[i].name),age:(i>=2&&String(m.age||'')===['5','10','13','16'][i-2])?'':(m.age||''),likes:Array.isArray(m.likes)?m.likes:[],dislikes:Array.isArray(m.dislikes)?m.dislikes:[],allergies:Array.isArray(m.allergies)?m.allergies:[]}));if(!Array.isArray(d.favourites))d.favourites=[];if(!Array.isArray(d.history))d.history=[];return d;};
+const defaultState = ()=>({members:defaultMembers(),plan:{},favourites:[],passes:{},ratings:{},history:[],foodPrefs:{},prefOrigins:{},firefliesSeedVersion:0,selectedCook:'p2',prefs:{maxTime:30},lastUpdated:new Date().toISOString()});
+const makeState=(raw)=>{
+  const d=defaultState();
+  if(raw&&typeof raw==='object')for(const k of Object.keys(d))if(raw[k]!==undefined&&raw[k]!==null)d[k]=raw[k];
+  if(!Array.isArray(d.members)||d.members.length!==6)d.members=defaultMembers();
+  d.members=d.members.map((m,i)=>{
+    const base=defaultMembers()[i],legacy=i>=2?['5','10','13','16'][i-2]:'';
+    return {...base,...m,name:(i>=2&&i<=5&&(['Enfant 1','Enfant 2','Enfant 3','Enfant 4','William'].includes(m.name)))?base.name:(m.name||base.name),age:(i>=2&&String(m.age||'')===legacy)?base.age:(m.age||base.age),likes:Array.isArray(m.likes)?m.likes:[],dislikes:Array.isArray(m.dislikes)?m.dislikes:[],allergies:Array.isArray(m.allergies)?m.allergies:[]};
+  });
+  if(!Array.isArray(d.favourites))d.favourites=[];if(!Array.isArray(d.history))d.history=[];
+  if(!d.foodPrefs||typeof d.foodPrefs!=='object')d.foodPrefs={};
+  if(!d.prefOrigins||typeof d.prefOrigins!=='object')d.prefOrigins={};
+  if(!d.firefliesSeedVersion){
+    const votes={
+      p1:{pates:'like',tomates:'like',oignons:'like',steak:'like',brocolis:'dislike',courgettes:'dislike',salade:'dislike','haricots-verts':'dislike','petits-pois':'dislike'},
+      p4:{steak:'depends'},
+      p6:{pates:'like',steak:'dislike'}
+    };
+    for(const [p,entries] of Object.entries(votes)){
+      d.foodPrefs[p]=d.foodPrefs[p]||{};d.prefOrigins[p]=d.prefOrigins[p]||{};
+      for(const [f,v] of Object.entries(entries))if(!Object.prototype.hasOwnProperty.call(d.foodPrefs[p],f)){d.foodPrefs[p][f]=v;d.prefOrigins[p][f]='fireflies';}
+    }
+    d.firefliesSeedVersion=1;
+  }
+  return d;
+}
 let recipes=[], state=defaultState(), mode='local', me=null, version=0, selectedDay=0, currentId=null, page='discover', modal=null, searchTerm='', authType='login', authError='', catalogKind='fav', showOnlyUnrated=false, persistQueue=Promise.resolve(), syncBusy=false, tipTimer;
 function recipeById(id){return recipes.find(r=>r.id===id)}
 function textFor(r){return clean(r.name+' '+r.ingredients.join(' ')+' '+r.category)}
@@ -1339,7 +1363,7 @@ function shell(content){
       <div class="comic-wordmark"><span class="mark"><span>ON MANGE</span></span><span>QUOI ?</span></div>
       <nav class="comic-top-actions" aria-label="Actions">
         <button class="comic-top-button ${page==='family'?'active':''}" data-page="${page==='family'?'discover':'family'}">${page==='family'?'← Le dîner':'👥 La famille'}</button>
-        <button class="comic-icon-button" data-action="account" title="Compte et données" aria-label="Compte et données">⚙</button>
+        <button class="comic-icon-button" data-page="family" title="Tableau des goûts" aria-label="Tableau des goûts">⚙</button>
       </nav>
     </div></header>
     <main class="comic-wrap">${content}</main>
@@ -1488,7 +1512,7 @@ document.addEventListener('click',clickHandler);document.addEventListener('submi
   const set=(member,food,value)=>mutate(s=>{
     if(!s.foodPrefs||typeof s.foodPrefs!=='object')s.foodPrefs={};
     if(!s.foodPrefs[member])s.foodPrefs[member]={};
-    if(value)s.foodPrefs[member][food]=value;else delete s.foodPrefs[member][food];
+    if(value)s.foodPrefs[member][food]=value;else delete s.foodPrefs[member][food];if(s.prefOrigins?.[member])delete s.prefOrigins[member][food];
   });
   const rawScore=score;
   score=function(recipe){
@@ -1514,9 +1538,9 @@ document.addEventListener('click',clickHandler);document.addEventListener('submi
     <div class="pf-more"><button data-pf="extend">${extended?'− REVENIR AUX 12 ESSENTIELS':'+ AJOUTER 8 ALIMENTS'}</button><small>Réponses conservées automatiquement</small></div>`;
   }
   function matrix(){
-    return `<div class="pf-help"><b>VUE D'ENSEMBLE</b><p>Touchez une case pour changer sa valeur : <mark class="yes">✓ Aime</mark> <mark class="no">✕ N'aime pas</mark> <mark class="mid">≈ Ça dépend</mark> <mark class="none">? Inconnu</mark></p></div>
+    return `<div class="pf-help"><b>VUE D'ENSEMBLE · FIRE­FLIES À VÉRIFIER</b><p>Touchez une case pour changer sa valeur : <mark class="yes">✓ Aime</mark> <mark class="no">✕ N'aime pas</mark> <mark class="mid">≈ Ça dépend</mark> <mark class="none">? Inconnu</mark></p></div>
     <div class="pf-scroll" role="region" tabindex="0" aria-label="Tableau de correspondance des goûts"><table class="pf-table"><thead><tr><th class="pf-food">ALIMENT</th>${state.members.map(m=>`<th>${escapeHTML(m.name)}</th>`).join('')}</tr></thead><tbody>
-    ${foods.map(f=>`<tr><th class="pf-food" scope="row">${f.icon} ${escapeHTML(f.name)}</th>${state.members.map(m=>{const v=get(m.id,f.id),cls=v==='like'?'yes':v==='dislike'?'no':v==='depends'?'mid':'none';return `<td><button class="pf-cell ${cls}" data-pf="cell" data-person="${m.id}" data-food="${f.id}" title="${escapeHTML(m.name)} : ${escapeHTML(f.name)} — ${labels[v]||'Sans avis'}" aria-label="${escapeHTML(m.name)}, ${escapeHTML(f.name)}, ${labels[v]||'sans avis'}, modifier">${v==='like'?'✓':v==='dislike'?'✕':v==='depends'?'≈':'?'}</button></td>`}).join('')}</tr>`).join('')}</tbody></table></div><p class="pf-bottomhint">Sur téléphone, glissez le tableau vers la droite pour afficher toute la famille.</p>`;
+    ${foods.map(f=>`<tr><th class="pf-food" scope="row">${f.icon} ${escapeHTML(f.name)}</th>${state.members.map(m=>{const v=get(m.id,f.id),cls=v==='like'?'yes':v==='dislike'?'no':v==='depends'?'mid':'none';return `<td><button class="pf-cell ${cls}" data-pf="cell" data-person="${m.id}" data-food="${f.id}" title="${escapeHTML(m.name)} : ${escapeHTML(f.name)} — ${labels[v]||'Sans avis'}" aria-label="${escapeHTML(m.name)}, ${escapeHTML(f.name)}, ${labels[v]||'sans avis'}, modifier">${v==='like'?'✓':v==='dislike'?'✕':v==='depends'?'≈':'?'}</button></td>`}).join('')}</tr>`).join('')}</tbody></table></div><p class="pf-bottomhint">Préremplissage depuis l’entretien Fireflies : seules les préférences suffisamment explicites sont indiquées. Touchez une case pour les corriger.</p>`;
   }
   function profiles(){
     return `<div class="pf-profiles">${state.members.map((m,i)=>`<button data-action="edit-profile" data-id="${m.id}"><span>${emojis[i]}</span><b>${escapeHTML(m.name)}</b><small>Prénom, goûts et allergies</small><strong>MODIFIER →</strong></button>`).join('')}</div><p class="pf-safety">L'allergie aux bananes mentionnée dans Fireflies doit être confirmée. Les allergies sont renseignées à part des goûts, dans chaque profil.</p>`;
