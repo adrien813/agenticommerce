@@ -1,0 +1,8 @@
+{
+  "name": "neolias-2-premier-passage",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {"build": "node build.mjs && node checks.mjs"},
+  "dependencies": {"three": "0.170.0"}
+}
