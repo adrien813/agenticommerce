@@ -97,7 +97,7 @@ const banner=document.createElement('figure');banner.className='game-banner';con
 const asset='assets/carnet-illustrations-v1.png';
 const descriptions={
 world:'Illustration du temple de pierre sur la carapace d’une tortue géante, au milieu des montagnes et de la forêt.',
-room:'Illustration d’une salle de temple vue d’en haut : Néolias en veste turquoise, une balance, des poids et des miroirs.',
+room:'Étude d’une salle vue d’en haut : Néolias aux cheveux bleu foncé, veste turquoise, sacoche brune et étoile jaune, avec une balance, des poids et des miroirs.',
 people:'Études de personnages : Malo avec ses provisions, Ossin le squelette et Luma la statuette de pierre.',
 objects:'Illustration de la sacoche de Néolias, d’une lentille, d’un prisme, d’une clé et de poids gravés.'
 };
@@ -119,13 +119,13 @@ const cast=byTitle('Des rencontres');
 const puzzles=byTitle('Trois idées');
 goals.id='vision';play.id='exploration';cast.id='rencontres';puzzles.id='enigmes';
 const quick=document.createElement('nav');quick.className='visual-nav';quick.setAttribute('aria-label','Parcourir le brief');
-[['vision','La vision'],['exploration','Explorer & manipuler'],['rencontres','Les rencontres'],['enigmes','Les énigmes'],['atelier-indices','Les choix en cours'],['chapters','Le carnet complet']].forEach(([id,label])=>{const a=document.createElement('a');a.href='#'+id;a.textContent=label;quick.append(a)});hero.after(quick);
+[['vision','La vision'],['exploration','Explorer & manipuler'],['rencontres','Les rencontres'],['enigmes','Les énigmes'],['atelier-secret','Les choix en cours'],['chapters','Le carnet complet']].forEach(([id,label])=>{const a=document.createElement('a');a.href='#'+id;a.textContent=label;quick.append(a)});hero.after(quick);
 const notice=document.createElement('aside');notice.className='visual-study-note';notice.innerHTML='<strong>Des études visuelles, pas des décisions.</strong><p>Ces illustrations aident à se projeter : elles ne valident ni la direction artistique finale, ni les personnages proposés, ni les solutions d’énigmes. Le jeu visé reste une aventure 3D avec Néolias visible et contrôlable, une caméra automatique, de l’exploration et des énigmes.</p>';quick.after(notice);
 document.querySelector('.discovery-art')?.remove();
 const row=document.createElement('div');row.className='visual-row';
-row.append(art('room','Voir la salle, comprendre les objets','Caméra fixe en diagonale depuis le haut, comme une maquette : le choix 6B est retenu. La disposition et le premier puzzle restent à concevoir.'),art('objects','Trouver. Transporter. Utiliser.','Le sac relie les découvertes aux mécanismes. La lentille, le prisme et la clé restent des propositions.'));
+row.append(art('room','Voir la salle, comprendre les objets','Caméra fixe en diagonale depuis le haut, comme une maquette : le choix 6B est retenu. Cette vue d’ensemble illustre les objets ; elle ne fixe ni le cadrage 3D final ni le premier puzzle.'),art('objects','Trouver. Transporter. Utiliser.','Le sac relie les découvertes aux mécanismes. La lentille, le prisme et la clé restent des propositions.'));
 play.querySelector('.brief-grid').before(row);
-const layout=document.createElement('div');layout.className='cast-layout';const cards=cast.querySelector('.tiles');cards.before(layout);layout.append(art('people','Trois rencontres possibles','Malo revient. Ossin et Luma sont proposés ; leurs apparences sont des études à discuter.'),cards);
+const layout=document.createElement('div');layout.className='cast-layout';const cards=cast.querySelector('.tiles');cards.before(layout);layout.append(art('people','Trois rencontres possibles','Le retour de Malo est retenu. Ossin, Luma et ces apparences restent proposés. Les indices attirent l’attention sans livrer la solution (9D).'),cards);
 
 document.querySelector('.answer-art')?.remove();
 const gameCredit=document.querySelector('.game-credit');if(gameCredit)gameCredit.textContent='Illustrations du carnet : temple voyageur, salle, rencontres et objets. Ces études aident à imaginer le projet ; la direction artistique du jeu reste à choisir. L’image du village rappelle le premier épisode.';
@@ -133,6 +133,20 @@ const gameCredit=document.querySelector('.game-credit');if(gameCredit)gameCredit
 const ui=document.createElement('aside');ui.className='interface-study';ui.innerHTML=`<div class="interface-top"><span>MAQUETTE D’INTERFACE · À DISCUTER</span><span>✦</span></div><h3>Le bon objet, au bon moment.</h3><div class="mock-flow"><div><b>◇</b><strong>Ramasser</strong><small>L’objet rejoint le sac.</small></div><span aria-hidden="true">→</span><div><b>▱</b><strong>Conserver</strong><small>Disponible automatiquement.</small></div><span aria-hidden="true">→</span><div><b>E</b><strong>Interagir</strong><small>Utiliser l’objet adapté.</small></div></div><p>Fonctionnement retenu : inventaire automatique. La forme de cette interface, ses icônes et l’affichage du sac sont seulement proposés.</p>`;play.querySelector('.visual-row').after(ui);
 const path=document.createElement('aside');path.className='interface-study';path.innerHTML=`<div class="interface-top"><span>CHOIX 5B · RETOUR COURT</span><span>↶</span></div><h3>Un objet oublié ? Juste la salle d’avant.</h3><div class="room-route"><div><span>◇</span><strong>Salle précédente</strong><small>L’objet oublié reste accessible.</small></div><b aria-hidden="true">↔</b><div><span>▣</span><strong>Salle actuelle</strong><small>Revenir, puis poursuivre l’énigme.</small></div></div><p>Les portes résolues restent ouvertes. Ce schéma illustre la règle validée, pas le plan définitif du temple.</p>`;document.querySelector('#atelier-deplacements h2').after(path);
 })();
-</script><style>@media(min-width:801px){.hero{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}.hero .scene-window{aspect-ratio:3/2}.hero .scene-window>img{width:200%!important;height:200%!important;left:0}</style></body></html>
+</script><style>@media(min-width:801px){.hero{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}.hero .scene-window{aspect-ratio:3/2}.hero .scene-window>img{width:200%!important;height:200%!important;left:0}</style><style id="illustrated-final-layout">
+/* Final layout: kept after legacy theme rules to preserve the illustrated hero. */
+.hero{grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:32px;align-items:center}
+.hero>div:first-child{min-width:0}.hero .scene-window{aspect-ratio:3/2}
+.hero .scene-window>img{width:200%!important;height:200%!important;left:0;top:0}
+main,header,footer{width:100%}.tiles,.brief-grid,.questions{min-width:0}
+.tiles>article,.brief-grid>article,.question{min-width:0}
+#nav{flex-wrap:wrap;overflow:visible}#nav a{white-space:normal}
+.summary>div{min-width:0}.track{min-width:0;width:100%;max-width:100%}
+.summary>div:last-child{flex:0 1 280px}
+@media(max-width:800px){.hero{grid-template-columns:minmax(0,1fr)}.tiles{grid-template-columns:minmax(0,1fr)}.summary>div:last-child{flex:auto;width:100%}}
+@media(max-width:540px){header{gap:12px;flex-wrap:wrap}.questions{grid-template-columns:minmax(0,1fr)}summary{flex-wrap:wrap}summary>div{min-width:0;flex:1}.count{margin-left:0}.question{padding:16px}.scene-art figcaption{padding:12px 14px}}
+@media print{h1,h2{text-shadow:none!important}.hero{display:block}.hero .scene-art{max-width:400px}.scene-art,.visual-study-note{background:white;color:#173240}.visual-study-note strong,.visual-study-note p{color:#173240}.scene-art{break-inside:avoid}.summary>div:last-child{flex:auto}}
+</style></body></html>
+
 
 
