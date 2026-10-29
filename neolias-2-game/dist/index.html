@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <meta name="theme-color" content="#101c2b" />
-<title>Néolias 2 : Les Secrets de la Carapace — Niveau 01</title>
+<title>Néolias 2 : Les Secrets de la Carapace — Niveau 01 · Correctif 0.6</title>
 <style>
 
 :root{--ivory:#f7e8c8;--muted:#a5b7bd;--teal:#78ded0;--gold:#e9c67b;--dark:#101c2b;--navy:#0d1826}
@@ -88,6 +88,11 @@ kbd,.keyset{font-family:inherit;font-weight:800;color:#ead9b9;background:rgba(22
 .world-tag.tag-rune{font-size:12px;color:#efca7c}.world-tag.tag-clue{font-size:9px;background:#335d59ed}
 @media (pointer:coarse),(hover:none){.world-tag{padding:6px 8px;font-size:9px}.world-tag.tag-rune{font-size:11px}}
 
+
+/* Android touchscreen fix: the browser must never convert stick dragging to page gestures. */
+html,body{overscroll-behavior:none}
+#touch-controls,#joystick-zone,#joystick-pad,#joystick-thumb,#joystick-cross{touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+#joystick-zone{overscroll-behavior:contain}
 </style>
 </head>
 <body>
@@ -214,38 +219,60 @@ const action=document.getElementById('touch-interact');
 const guide=document.getElementById('touch-guide');
 const control={axes:{x:0,y:0},onJump:null,onInteract:null,markAvailable(yes){action.classList.toggle('available',!!yes)}};
 window.NeoliasTouch=control;
-let activePointer=null,used=false,activeButton=null,buttonTimer=null;
+// Android and embedded browsers may dispatch pointercancel while the user's finger is
+// still on the stick. Touch events are independently tracked and remain authoritative.
+let activePointer=null,activeTouch=null,used=false,activeButton=null,buttonTimer=null;
 let joystickAxes={x:0,y:0};
 function publishAxes(){control.axes.x=activeButton?activeButton.x:joystickAxes.x;control.axes.y=activeButton?activeButton.y:joystickAxes.y;}
 function hideGuide(){if(!used){used=true;guide.style.opacity='0';}}
-function update(x,y){const r=pad.getBoundingClientRect();const cx=r.left+r.width/2,cy=r.top+r.height/2;const reach=(r.width-52)/2;
-let dx=x-cx,dy=y-cy,mag=Math.hypot(dx,dy),f=mag>reach?reach/mag:1;dx*=f;dy*=f;
-// A slight dead zone prevents the character drifting if a finger rests on the stick.
-const dead=5;let m=Math.hypot(dx,dy),v=m<=dead?0:(m-dead)/(reach-dead);
-joystickAxes.x=m?v*dx/m:0;joystickAxes.y=m?v*dy/m:0;publishAxes();
-thumb.style.transform=`translate3d(${dx}px, ${dy}px, 0)`;
+function update(x,y){
+ const r=pad.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
+ const reach=Math.max(20,(r.width-52)/2);let dx=x-cx,dy=y-cy;
+ let mag=Math.hypot(dx,dy);if(mag>reach){dx*=reach/mag;dy*=reach/mag;}
+ const dead=4,m=Math.hypot(dx,dy),v=m<=dead?0:Math.min(1,(m-dead)/(reach-dead));
+ joystickAxes.x=m?v*dx/m:0;joystickAxes.y=m?v*dy/m:0;
+ publishAxes();thumb.style.transform=`translate3d(${dx}px, ${dy}px, 0)`;
 }
-function stop(){activePointer=null;joystickAxes.x=0;joystickAxes.y=0;publishAxes();thumb.style.transform='translate3d(0,0,0)';zone.classList.remove('active');}
-zone.addEventListener('pointerdown',e=>{if(e.target.closest('[data-move]'))return;if(activePointer!==null)return;if(e.pointerType==='mouse'&&e.button!==0)return;e.preventDefault();activePointer=e.pointerId;try{if(zone.setPointerCapture)zone.setPointerCapture(e.pointerId)}catch{}zone.classList.add('active');hideGuide();update(e.clientX,e.clientY)});
-zone.addEventListener('pointermove',e=>{if(e.pointerId===activePointer){e.preventDefault();update(e.clientX,e.clientY)}});
-for(let event of ['pointerup','pointercancel','lostpointercapture'])zone.addEventListener(event,e=>{if(e.pointerId===activePointer)stop()});
-// Fallback for embedded tablet browsers that lack reliable Pointer Events.
-let activeTouch=null;
+function idle(){joystickAxes.x=joystickAxes.y=0;publishAxes();thumb.style.transform='translate3d(0,0,0)';zone.classList.remove('active');}
+function stop(){activePointer=null;activeTouch=null;idle();}
+function begin(x,y){zone.classList.add('active');hideGuide();update(x,y);}
+zone.addEventListener('pointerdown',e=>{
+ if(e.pointerType==='mouse'&&e.button!==0)return;
+ if(activePointer!==null)return;
+ e.preventDefault();activePointer=e.pointerId;
+ try{zone.setPointerCapture(e.pointerId);}catch{}
+ begin(e.clientX,e.clientY);
+},{passive:false});
+zone.addEventListener('pointermove',e=>{
+ if(e.pointerId!==activePointer)return;
+ e.preventDefault();if(activeTouch===null)update(e.clientX,e.clientY);
+},{passive:false});
+function endPointer(e){
+ if(e.pointerId!==activePointer)return;activePointer=null;
+ if(activeTouch===null)idle();
+}
+for(const ev of ['pointerup','pointercancel','lostpointercapture'])zone.addEventListener(ev,endPointer);
+// Crucial: preventDefault must happen even if pointerdown already fired, otherwise
+// Android can consume the gesture and terminate the drag before movement begins.
 zone.addEventListener('touchstart',e=>{
- if(activePointer!==null||activeTouch!==null)return;
+ e.preventDefault();
+ if(activeTouch!==null)return;
  const t=e.changedTouches[0];if(!t)return;
- e.preventDefault();activeTouch=t.identifier;zone.classList.add('active');hideGuide();update(t.clientX,t.clientY);
+ activeTouch=t.identifier;begin(t.clientX,t.clientY);
 },{passive:false});
 zone.addEventListener('touchmove',e=>{
+ e.preventDefault();
  if(activeTouch===null)return;
- const t=Array.from(e.touches).find(t=>t.identifier===activeTouch);if(!t)return;
- e.preventDefault();update(t.clientX,t.clientY);
+ const t=Array.from(e.touches).find(t=>t.identifier===activeTouch);
+ if(t)update(t.clientX,t.clientY);
 },{passive:false});
-for(let ev of ['touchend','touchcancel'])zone.addEventListener(ev,e=>{
+for(const ev of ['touchend','touchcancel'])zone.addEventListener(ev,e=>{
+ e.preventDefault();
  if(activeTouch===null)return;
- if(Array.from(e.changedTouches).some(t=>t.identifier===activeTouch)){activeTouch=null;stop();}
+ if(Array.from(e.changedTouches).some(t=>t.identifier===activeTouch)){
+  activeTouch=null;activePointer=null;idle();
+ }
 },{passive:false});
-
 function addButton(button,callback){button.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'&&e.button!==0)return;e.preventDefault();hideGuide();button.classList.add('pressed');if(typeof control[callback]==='function')control[callback]()});for(let ev of ['pointerup','pointercancel','pointerleave'])button.addEventListener(ev,()=>button.classList.remove('pressed'));
 // Screen readers and keyboard / switch devices trigger click without a pointer.
 button.addEventListener('click',e=>{if(e.detail===0&&typeof control[callback]==='function')control[callback]()});}
