@@ -127,6 +127,7 @@ html,body{overscroll-behavior:none}
   </div>
   <div class="interaction" id="interaction" aria-live="polite"><span class="hint-spark">✦</span><span id="hint-text">Approche-toi des objets pour les examiner.</span><kbd id="hint-key">E</kbd></div>
   <div class="toast" id="toast" aria-live="polite"></div>
+  <div id="engine-health" aria-live="off" style="position:absolute;z-index:16;bottom:4px;left:50%;transform:translateX(-50%);background:#0c2228b5;border:1px solid #d9c88a40;padding:2px 9px;border-radius:5px;color:#e2d5ae;font:10px system-ui,sans-serif;white-space:nowrap;pointer-events:none">MOTEUR EN DÉMARRAGE · V0.7</div>
   <div class="touch-guide" id="touch-guide" aria-hidden="true">Déplace Néolias avec le joystick · Utilise <b>AGIR</b> près des objets</div>
   <div class="orientation-guide" aria-hidden="true">↻ Tourne la tablette en paysage pour mieux voir le temple.</div>
   <div class="touch-controls" id="touch-controls" aria-label="Commandes tactiles du jeu">
@@ -462,9 +463,13 @@ if(len>.06){dx/=len;dz/=len;
 if(s.jump>0||s.jumpVel){s.jump+=s.jumpVel*dt;s.jumpVel-=16*dt;if(s.jump<0){s.jump=0;s.jumpVel=0}}
 if(s.beamSolved&&s.p.z<-10.55&&Math.abs(s.p.x)<1.6&&!s.finish)finish();
 }
-function frame(ms){let time=ms*.001,dt=Math.min(.05,last?time-last:0);last=time;clock+=dt;if(!s.finish)move(dt);cam+=(s.p.z-1.0-cam)*Math.min(1,dt*2.3);let dpr=Math.min(matchMedia('(pointer:coarse)').matches?1.5:2,devicePixelRatio||1),w=Math.round(innerWidth*dpr),h=Math.round(innerHeight*dpr);if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h}ctx.setTransform(dpr,0,0,dpr,0,0);scale=Math.min(38,innerWidth/52,innerHeight/28);offx=innerWidth*.52;offy=innerHeight*.65;world();window.NeoliasMarkers?.update(pos,{...s,pickedWeights:weights.filter(w=>w.picked).map(w=>w.id)});hint();requestAnimationFrame(frame)}
-restore();hud();hint();canvas.focus();requestAnimationFrame(frame);
-window.NeoliasDebug={getState:()=>JSON.parse(JSON.stringify({p:s.p,dir:s.dir,held:s.held,placed:s.placed,gate:s.gate,runeStep:s.runeStep,pickedLens:s.pickedLens,beamDirection:s.beamDirection,beamSolved:s.beamSolved,finish:s.finish})),restart,interact:use,moveTo:(x,z)=>{s.p={x,z};hint()},blocked:(x,z)=>window.NeoliasMovement.blocked(x,z,s.gate),step:(dx,dz,dt)=>{const n=window.NeoliasMovement.step(s.p,dx,dz,dt,s.gate);s.p.x=n.x;s.p.z=n.z;return n},renderer:'Canvas 2D projection fallback'};
+function frame(ms){let time=ms*.001,dt=Math.min(.05,last?time-last:0);last=time;clock+=dt;cam+=(s.p.z-1.0-cam)*Math.min(1,dt*2.3);let dpr=Math.min(1,1050/Math.max(innerWidth,innerHeight)),w=Math.round(innerWidth*dpr),h=Math.round(innerHeight*dpr);if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h}ctx.setTransform(dpr,0,0,dpr,0,0);scale=Math.min(38,innerWidth/52,innerHeight/28);offx=innerWidth*.52;offy=innerHeight*.65;world();window.NeoliasMarkers?.update(pos,{...s,pickedWeights:weights.filter(w=>w.picked).map(w=>w.id)});hint();requestAnimationFrame(frame)}
+restore();hud();hint();canvas.focus();
+let physicsLast=performance.now();
+window.NeoliasEngineTick=function(){const now=performance.now(),dt=Math.max(0,Math.min(.16,(now-physicsLast)/1000));physicsLast=now;if(!s.finish)move(dt);};
+window.NeoliasPhysicsTimer=setInterval(window.NeoliasEngineTick,33);
+requestAnimationFrame(frame);
+window.NeoliasDebug={getState:()=>JSON.parse(JSON.stringify({p:s.p,jump:s.jump,dir:s.dir,held:s.held,placed:s.placed,gate:s.gate,runeStep:s.runeStep,pickedLens:s.pickedLens,beamDirection:s.beamDirection,beamSolved:s.beamSolved,finish:s.finish})),restart,interact:use,moveTo:(x,z)=>{s.p={x,z};hint()},blocked:(x,z)=>window.NeoliasMovement.blocked(x,z,s.gate),step:(dx,dz,dt)=>{const n=window.NeoliasMovement.step(s.p,dx,dz,dt,s.gate);s.p.x=n.x;s.p.z=n.z;return n},renderer:'Canvas 2D projection fallback'};
 })();
 
 };
@@ -476,7 +481,12 @@ window.NeoliasDebug={getState:()=>JSON.parse(JSON.stringify({p:s.p,dir:s.dir,hel
 (()=>{
 'use strict';
 const $=s=>document.querySelector(s), canvas=$('#game');
-const gl=canvas.getContext('webgl',{antialias:true,alpha:false,powerPreference:'high-performance'});
+let gl=null;
+try{
+ if(new URLSearchParams(window.location.search).get('renderer')!=='canvas')
+   gl=canvas.getContext('webgl',{antialias:false,alpha:false,powerPreference:'default'});
+}catch(err){console.warn('Néolias WebGL non disponible',err);}
+
 if(!gl){window.NeoliasFallbackStart();return;}
 const VERT=`attribute vec3 aPosition; attribute vec3 aNormal;
 uniform mat4 uProjection,uView,uModel;
@@ -712,14 +722,56 @@ if(state.gate&&state.p.z<-.9&&!seenEntry){seenEntry=true;toast('La seconde salle
 if(state.beamSolved&&state.p.z<-10.55&&Math.abs(state.p.x)<1.6)complete();
 if(elapsed-state.lastSave>5){state.lastSave=elapsed;safeSave();}
 }
-function resize(){let dpr=Math.min(matchMedia('(pointer:coarse)').matches?1.5:2,window.devicePixelRatio||1),w=Math.max(1,Math.round(canvas.clientWidth*dpr)),h=Math.max(1,Math.round(canvas.clientHeight*dpr));if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h}gl.viewport(0,0,w,h)}
-function frame(stamp){let now=stamp*.001,dt=Math.min(.045,prev?now-prev:0),t=elapsed+=dt;prev=now;resize();move(dt);cameraTarget+=(state.p.z-1.1-cameraTarget)*Math.min(1,dt*2.6);
+function resize(){let dpr=Math.min(matchMedia('(pointer:coarse)').matches?1:1.5,window.devicePixelRatio||1),w=Math.max(1,Math.round(canvas.clientWidth*dpr)),h=Math.max(1,Math.round(canvas.clientHeight*dpr));if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h}gl.viewport(0,0,w,h)}
+function frame(stamp){if(window.NeoliasMode==='software')return;window.NeoliasLastRendered=performance.now();window.NeoliasRenderedFrames=(window.NeoliasRenderedFrames||0)+1;let now=stamp*.001,dt=Math.min(.045,prev?now-prev:0),t=elapsed+=dt;prev=now;resize();cameraTarget+=(state.p.z-1.1-cameraTarget)*Math.min(1,dt*2.6);
 const aspect=canvas.width/canvas.height,eye=[11.2,21.5,cameraTarget+23.5],target=[0,.2,cameraTarget-2.0];let view=lookAt(eye,target),proj=perspective(43*Math.PI/180,aspect,.1,100);viewProj=matmul(proj,view);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.useProgram(prog);gl.uniformMatrix4fv(loc.view,false,view);gl.uniformMatrix4fv(loc.proj,false,proj);
 for(let v of staticObjects)drawMesh(v);buildDynamics(t);for(let v of dynamicObjects)drawMesh(v);window.NeoliasMarkers?.update(project,{...state,pickedWeights:weights.filter(w=>w.picked).map(w=>w.id)});hint();requestAnimationFrame(frame)}
-load();updateUI();hint();canvas.focus();requestAnimationFrame(frame);
-window.NeoliasDebug={getState:()=>JSON.parse(JSON.stringify({p:state.p,dir:state.dir,walk:state.walk,held:state.held,placed:state.placed,gate:state.gate,runeStep:state.runeStep,pickedLens:state.pickedLens,beamDirection:state.beamDirection,beamSolved:state.beamSolved,finish:state.finish})),restart,interact:use,moveTo:(x,z)=>{state.p.x=x;state.p.z=z;hint()},blocked:(x,z)=>window.NeoliasMovement.blocked(x,z,state.gate),step:(dx,dz,dt)=>{const n=window.NeoliasMovement.step(state.p,dx,dz,dt,state.gate);state.p.x=n.x;state.p.z=n.z;return n},renderer:'WebGL 1'};
+load();updateUI();hint();canvas.focus();
+let physicsLast=performance.now();
+window.NeoliasEngineTick=function(){const now=performance.now(),dt=Math.max(0,Math.min(.16,(now-physicsLast)/1000));physicsLast=now;move(dt);};
+window.NeoliasPhysicsTimer=setInterval(window.NeoliasEngineTick,33);
+window.NeoliasMode='webgl';window.NeoliasLastRendered=performance.now();window.NeoliasRenderedFrames=0;
+let rescued=false;
+function rescueGraphics(){
+ if(rescued)return;rescued=true;
+ try{safeSave();}catch(e){}
+ clearInterval(window.NeoliasPhysicsTimer);
+ window.NeoliasMode='software';
+ const oldCanvas=document.getElementById('game');const replacement=oldCanvas.cloneNode(false);
+ oldCanvas.replaceWith(replacement);
+ window.NeoliasFallbackStart();
+}
+canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();rescueGraphics()});
+const rescueTimer=setInterval(()=>{
+ if(rescued||document.hidden){if(rescued)clearInterval(rescueTimer);return;}
+ if(performance.now()-window.NeoliasLastRendered>2200)rescueGraphics();
+},650);
+requestAnimationFrame(frame);
+window.NeoliasDebug={getState:()=>JSON.parse(JSON.stringify({p:state.p,jump:state.jump,dir:state.dir,walk:state.walk,held:state.held,placed:state.placed,gate:state.gate,runeStep:state.runeStep,pickedLens:state.pickedLens,beamDirection:state.beamDirection,beamSolved:state.beamSolved,finish:state.finish})),restart,interact:use,moveTo:(x,z)=>{state.p.x=x;state.p.z=z;hint()},blocked:(x,z)=>window.NeoliasMovement.blocked(x,z,state.gate),step:(dx,dz,dt)=>{const n=window.NeoliasMovement.step(state.p,dx,dz,dt,state.gate);state.p.x=n.x;state.p.z=n.z;return n},renderer:'WebGL 1'};
 })();
 
+</script>
+<script>
+(function(){
+ const el=document.getElementById('engine-health');let failure='';let lastZ=null,lastCheck=performance.now(),motionEvents=0;
+ window.addEventListener('error',e=>{failure=String(e.message||'erreur inconnue').slice(0,45)});
+ window.addEventListener('unhandledrejection',e=>{failure=String(e.reason||'promesse rejetée').slice(0,45)});
+ const touch=window.matchMedia('(pointer:coarse)').matches||navigator.maxTouchPoints>0;
+ if(!touch)el.style.display='none';
+ setInterval(()=>{
+  if(!touch)return;
+  const dbg=window.NeoliasDebug,control=window.NeoliasTouch;
+  if(failure){el.textContent='ERREUR MOTEUR · '+failure;el.style.color='#ffaba0';return;}
+  if(!dbg){el.textContent='MOTEUR INACTIF · V0.7';el.style.color='#ffaba0';return;}
+  const p=dbg.getState().p,a=control?.axes||{x:0,y:0};
+  const moving=Math.hypot(a.x,a.y)>.1;
+  const changed=lastZ===null||Math.hypot(p.x-lastZ.x,p.z-lastZ.z)>.025;
+  if(moving&&!changed)motionEvents++;else motionEvents=0;
+  el.textContent=(motionEvents>=4?'COMMANDES REÇUES, MOUVEMENT BLOQUÉ':'MOTEUR ACTIF')+' · '+(dbg.renderer?.startsWith('WebGL')?'3D':'COMPATIBLE')+' · X '+p.x.toFixed(1)+' Z '+p.z.toFixed(1)+' · JOY '+Math.round(Math.hypot(a.x,a.y)*100)+'%';
+  el.style.color=motionEvents>=4?'#ffaba0':'#e2d5ae';
+  lastZ={x:p.x,z:p.z};lastCheck=performance.now();
+ },250);
+})();
 </script>
 </body>
 </html>
